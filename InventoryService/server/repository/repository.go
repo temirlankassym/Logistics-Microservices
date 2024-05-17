@@ -4,76 +4,87 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	"github.com/joho/godotenv"
-	"log"
-	"os"
 )
 
-type User struct {
-	Id    int32
-	Name  string
-	Email string
+type Product struct {
+	Id          int32
+	ProductName string
+	Quantity    int32
+	Description string
 }
 
-func Connect(ctx context.Context) (*pgx.Conn, error) {
+type Repository interface {
+	GetProduct(ctx context.Context, productName string) (Product, error)
+}
+
+type Database struct {
+	conn *pgx.Conn
+}
+
+func Connect(ctx context.Context) (Database, error) {
 	config := getConfig()
 
-	db, err := pgx.Connect(ctx, config)
+	conn, err := pgx.Connect(ctx, config)
 
 	if err != nil {
-		return nil, fmt.Errorf("cannot connect to database")
+		return Database{}, fmt.Errorf("cannot connect to database")
 	}
 
-	return db, nil
+	return Database{conn: conn}, nil
 }
 
 func getConfig() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	return fmt.Sprintf("postgresql://%s:%s@localhost:%s?sslmode=disable",
-		os.Getenv("DBNAME"), os.Getenv("PASSWORD"), os.Getenv("PORT"))
+	return fmt.Sprintf("postgresql://%s:%s@localhost:%s/%s?sslmode=disable",
+		"postgres", "mysecretpassword", "5432", "inventory")
 }
 
-func GetUser(ctx context.Context, db *pgx.Conn, id int32) (User, error) {
-	user := User{}
+func (db *Database) GetProduct(ctx context.Context, productName string) (Product, error) {
+	var product Product
 
-	err := db.QueryRow(ctx, "Select * from users where id = $1", id).Scan(&user.Id, &user.Name, &user.Email)
+	row := db.conn.QueryRow(ctx, "SELECT * FROM products WHERE product_name = $1", productName)
+
+	err := row.Scan(&product.Id, &product.ProductName, &product.Quantity, &product.Description)
+
 	if err != nil {
-		return User{}, err
+		return Product{}, fmt.Errorf("cannot get product")
 	}
 
-	return user, nil
+	return product, nil
 }
 
-func AddUser(ctx context.Context, db *pgx.Conn, name string, email string) (int32, error) {
-	var id int32
+func (db *Database) DecrementProduct(ctx context.Context, productName string, quantity int32) (int32, error) {
+	var stock int32
+	var productCount int32
 
-	err := db.QueryRow(ctx, "Insert into users (name, email) values ($1, $2) returning id", name, email).Scan(&id)
+	transaction, err := db.conn.Begin(ctx)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error when starting transaction %w", err)
 	}
 
-	return id, nil
-}
-
-func ListUsers(ctx context.Context, db *pgx.Conn) ([]User, error) {
-	users := []User{}
-
-	rows, err := db.Query(ctx, "Select * from users")
+	row := db.conn.QueryRow(ctx, "SELECT quantity FROM products WHERE product_name = $1", productName)
+	err = row.Scan(&stock)
 	if err != nil {
-		return nil, err
+		return 0, fmt.Errorf("cannot get product")
 	}
 
-	for rows.Next() {
-		user := User{}
-		err := rows.Scan(&user.Id, &user.Name, &user.Email)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
+	// if not enough products in stock give what is present and set quantity to 0
+	if stock < quantity {
+		productCount = 0
+	} else {
+		productCount = stock - quantity
 	}
 
-	return users, nil
+	_, err = db.conn.Exec(ctx, "UPDATE products SET quantity = $1 WHERE product_name = $2", productCount, productName)
+
+	if err != nil {
+		transaction.Rollback(ctx)
+		return 0, fmt.Errorf("cannot decrement product")
+	}
+
+	if err = transaction.Commit(ctx); err != nil {
+		transaction.Rollback(ctx)
+		return 0, fmt.Errorf("can't commit transaction: %w", err)
+	}
+
+	return quantity - stock, nil
 }

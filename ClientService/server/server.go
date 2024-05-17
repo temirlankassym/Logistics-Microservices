@@ -22,12 +22,14 @@ func (s *server) MakeOrder(ctx context.Context, req *pb.MakeOrderRequest) (*pb.S
 	arrivalDate, err := s.c.PackOrder(req.ProductName, req.Quantity)
 	if err != nil {
 		fmt.Println(err)
-		return &pb.Status{Message: "Fail"}, nil
+		return &pb.Status{Message: err.Error()}, nil
 	}
 
-	fmt.Println(arrivalDate)
-
 	err = s.db.MakeOrder(ctx, req.ProductName, req.Quantity, arrivalDate.ArrivalDate)
+	if err != nil {
+		fmt.Println(err)
+		return &pb.Status{Message: "Not enough products in stock"}, nil
+	}
 	return &pb.Status{Message: "Success"}, nil
 }
 
@@ -45,29 +47,6 @@ func (s *server) GetOrders(ctx context.Context, req *emptypb.Empty) (*pb.Orders,
 
 	return &pb.Orders{Orders: list}, nil
 }
-
-//func (s *server) GetMessage(ctx context.Context, req *emptypb.Empty) (*pb.Test, error) {
-//	if true {
-//		c, err := client.NewClient()
-//		if err != nil {
-//			log.Fatal(err)
-//		}
-//
-//		message, err := c.GetInventoryMessage()
-//
-//		if err != nil {
-//			fmt.Sprintf("%s Error while getting message", message)
-//		}
-//
-//		return &pb.Test{
-//			Message: message.Message,
-//		}, nil
-//	}
-//
-//	return &pb.Test{
-//		Message: "Hello from the Client Service!",
-//	}, nil
-//}
 
 func main() {
 	ctx := context.Background()

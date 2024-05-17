@@ -63,12 +63,23 @@ func (db *Database) GetOrders(ctx context.Context) ([]Order, error) {
 }
 
 func (db *Database) MakeOrder(ctx context.Context, productName string, quantity int32, arrivalDate string) error {
-	createdAt := time.Now().Format("2006-01-02 15:04:05")
-
-	_, err := db.conn.Exec(ctx, "INSERT INTO orders (product_name, quantity, created, arrival) VALUES ($1, $2, $3, $4)", productName, quantity, createdAt, arrivalDate)
+	transaction, err := db.conn.Begin(ctx)
 	if err != nil {
-		fmt.Println("Fucking error")
-		return err
+		return fmt.Errorf("error when starting transaction %w", err)
 	}
+
+	createdAt := time.Now().Format("15:04:05 02.01.2006")
+
+	_, err = db.conn.Exec(ctx, "INSERT INTO orders (product_name, quantity, created, arrival) VALUES ($1, $2, $3, $4)", productName, quantity, createdAt, arrivalDate)
+	if err != nil {
+		transaction.Rollback(ctx)
+		return fmt.Errorf("can't create new order: %w", err)
+	}
+
+	if err = transaction.Commit(ctx); err != nil {
+		transaction.Rollback(ctx)
+		return fmt.Errorf("can't commit transaction: %w", err)
+	}
+
 	return nil
 }

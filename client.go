@@ -45,8 +45,7 @@ func main() {
 		log.Fatal("could not connect")
 	}
 
-	//message, err := c.MakeOrder("apple", 2)
-	message, err := c.GetOrders()
+	message, err := c.MakeOrder("iPhone", 2)
 	fmt.Println(message)
 }
 
