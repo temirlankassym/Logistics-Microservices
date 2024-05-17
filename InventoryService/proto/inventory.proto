@@ -1,0 +1,17 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "final/proto";
+
+service InventoryService{
+  rpc PackOrder (OrderDetails) returns (ArrivalDate) {}
+}
+
+message OrderDetails {
+  string ProductName = 1;
+  int32 Quantity = 2;
+}
+
+message ArrivalDate{
+  string ArrivalDate = 1;
+}

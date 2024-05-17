@@ -1,0 +1,32 @@
+syntax = "proto3";
+package proto;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "final/proto";
+
+service ClientService{
+  rpc MakeOrder (MakeOrderRequest) returns (Status) {}
+  rpc GetOrders (google.protobuf.Empty) returns (Orders) {}
+}
+
+message MakeOrderRequest {
+  string ProductName = 1;
+  int32 Quantity = 2;
+}
+
+message Status {
+  string message = 1;
+}
+
+message Order {
+  int32 id = 1;
+  string ProductName = 2;
+  int32 Quantity = 3;
+  string Created = 4;
+  string Arrival = 5;
+}
+
+message Orders {
+  repeated Order orders = 1;
+}

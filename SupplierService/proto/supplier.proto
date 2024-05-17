@@ -1,0 +1,15 @@
+syntax = "proto3";
+package proto;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "final/proto";
+
+service SupplierService{
+  rpc GetSupplierMessage (google.protobuf.Empty) returns (SupplierMessage) {}
+}
+
+message SupplierMessage {
+  string message = 1;
+}
