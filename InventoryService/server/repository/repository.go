@@ -64,7 +64,7 @@ func (db *Database) DecrementProduct(ctx context.Context, productName string, qu
 	row := db.conn.QueryRow(ctx, "SELECT quantity FROM products WHERE product_name = $1", productName)
 	err = row.Scan(&stock)
 	if err != nil {
-		return 0, fmt.Errorf("cannot get product")
+		return 0, fmt.Errorf("there is no such product")
 	}
 
 	// if not enough products in stock give what is present and set quantity to 0

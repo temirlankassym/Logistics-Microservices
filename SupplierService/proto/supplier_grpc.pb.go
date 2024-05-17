@@ -8,7 +8,6 @@ package proto
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -23,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SupplierServiceClient interface {
-	GetSupplierMessage(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*SupplierMessage, error)
+	CreateDelivery(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*ShipTime, error)
 }
 
 type supplierServiceClient struct {
@@ -34,9 +33,9 @@ func NewSupplierServiceClient(cc grpc.ClientConnInterface) SupplierServiceClient
 	return &supplierServiceClient{cc}
 }
 
-func (c *supplierServiceClient) GetSupplierMessage(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*SupplierMessage, error) {
-	out := new(SupplierMessage)
-	err := c.cc.Invoke(ctx, "/proto.SupplierService/GetSupplierMessage", in, out, opts...)
+func (c *supplierServiceClient) CreateDelivery(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*ShipTime, error) {
+	out := new(ShipTime)
+	err := c.cc.Invoke(ctx, "/proto.SupplierService/CreateDelivery", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +46,7 @@ func (c *supplierServiceClient) GetSupplierMessage(ctx context.Context, in *empt
 // All implementations must embed UnimplementedSupplierServiceServer
 // for forward compatibility
 type SupplierServiceServer interface {
-	GetSupplierMessage(context.Context, *empty.Empty) (*SupplierMessage, error)
+	CreateDelivery(context.Context, *ProductInfo) (*ShipTime, error)
 	mustEmbedUnimplementedSupplierServiceServer()
 }
 
@@ -55,8 +54,8 @@ type SupplierServiceServer interface {
 type UnimplementedSupplierServiceServer struct {
 }
 
-func (UnimplementedSupplierServiceServer) GetSupplierMessage(context.Context, *empty.Empty) (*SupplierMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSupplierMessage not implemented")
+func (UnimplementedSupplierServiceServer) CreateDelivery(context.Context, *ProductInfo) (*ShipTime, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDelivery not implemented")
 }
 func (UnimplementedSupplierServiceServer) mustEmbedUnimplementedSupplierServiceServer() {}
 
@@ -71,20 +70,20 @@ func RegisterSupplierServiceServer(s grpc.ServiceRegistrar, srv SupplierServiceS
 	s.RegisterService(&SupplierService_ServiceDesc, srv)
 }
 
-func _SupplierService_GetSupplierMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+func _SupplierService_CreateDelivery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SupplierServiceServer).GetSupplierMessage(ctx, in)
+		return srv.(SupplierServiceServer).CreateDelivery(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.SupplierService/GetSupplierMessage",
+		FullMethod: "/proto.SupplierService/CreateDelivery",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SupplierServiceServer).GetSupplierMessage(ctx, req.(*empty.Empty))
+		return srv.(SupplierServiceServer).CreateDelivery(ctx, req.(*ProductInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -97,8 +96,8 @@ var SupplierService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SupplierServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetSupplierMessage",
-			Handler:    _SupplierService_GetSupplierMessage_Handler,
+			MethodName: "CreateDelivery",
+			Handler:    _SupplierService_CreateDelivery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

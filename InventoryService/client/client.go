@@ -5,8 +5,6 @@ import (
 	pb "final/InventoryService/SupplierProto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"time"
 )
 
 type Client struct {
@@ -21,11 +19,11 @@ func NewClient() (*Client, error) {
 	}
 	c := pb.NewSupplierServiceClient(conn)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	//ctx, _ := context.WithTimeout(context.Background(), time.Second)
 
-	return &Client{conn: c, ctx: ctx}, nil
+	return &Client{conn: c, ctx: context.Background()}, nil
 }
 
-func (c *Client) GetSupplierMessage() (*pb.SupplierMessage, error) {
-	return c.conn.GetSupplierMessage(c.ctx, &emptypb.Empty{})
+func (c *Client) CreateDelivery(productName string, quantity int32) (*pb.ShipTime, error) {
+	return c.conn.CreateDelivery(c.ctx, &pb.ProductInfo{Name: productName, Quantity: quantity})
 }

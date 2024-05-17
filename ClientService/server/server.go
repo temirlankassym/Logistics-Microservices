@@ -28,9 +28,9 @@ func (s *server) MakeOrder(ctx context.Context, req *pb.MakeOrderRequest) (*pb.S
 	err = s.db.MakeOrder(ctx, req.ProductName, req.Quantity, arrivalDate.ArrivalDate)
 	if err != nil {
 		fmt.Println(err)
-		return &pb.Status{Message: "Not enough products in stock"}, nil
+		return &pb.Status{Message: "can't make order"}, nil
 	}
-	return &pb.Status{Message: "Success"}, nil
+	return &pb.Status{Message: fmt.Sprintf("Success. Arrival Date: %s", arrivalDate.ArrivalDate)}, nil
 }
 
 func (s *server) GetOrders(ctx context.Context, req *emptypb.Empty) (*pb.Orders, error) {

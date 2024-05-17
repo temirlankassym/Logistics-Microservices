@@ -4,76 +4,51 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	"github.com/joho/godotenv"
-	"log"
-	"os"
 )
 
-type User struct {
-	Id    int32
-	Name  string
-	Email string
+type Repository interface {
+	GetDeliveryTime(ctx context.Context, productName string) (int32, error)
+	CreateDelivery(ctx context.Context, productName string, quantity int32, arrival string) error
 }
 
-func Connect(ctx context.Context) (*pgx.Conn, error) {
+type Database struct {
+	conn *pgx.Conn
+}
+
+func Connect(ctx context.Context) (Database, error) {
 	config := getConfig()
 
-	db, err := pgx.Connect(ctx, config)
+	conn, err := pgx.Connect(ctx, config)
 
 	if err != nil {
-		return nil, fmt.Errorf("cannot connect to database")
+		return Database{}, fmt.Errorf("cannot connect to database")
 	}
 
-	return db, nil
+	return Database{conn: conn}, nil
 }
 
 func getConfig() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	return fmt.Sprintf("postgresql://%s:%s@localhost:%s?sslmode=disable",
-		os.Getenv("DBNAME"), os.Getenv("PASSWORD"), os.Getenv("PORT"))
+	return fmt.Sprintf("postgresql://%s:%s@localhost:%s/%s?sslmode=disable",
+		"postgres", "mysecretpassword", "5432", "supplier")
 }
 
-func GetUser(ctx context.Context, db *pgx.Conn, id int32) (User, error) {
-	user := User{}
+func (db *Database) GetDeliveryTime(ctx context.Context, productName string) (int32, error) {
+	var days int32
+	err := db.conn.QueryRow(ctx, "SELECT days_to_ship FROM company_products WHERE product_name = $1", productName).Scan(&days)
 
-	err := db.QueryRow(ctx, "Select * from users where id = $1", id).Scan(&user.Id, &user.Name, &user.Email)
 	if err != nil {
-		return User{}, err
+		return 0, fmt.Errorf("cannot get product")
 	}
 
-	return user, nil
+	return days, nil
 }
 
-func AddUser(ctx context.Context, db *pgx.Conn, name string, email string) (int32, error) {
-	var id int32
+func (db *Database) CreateDelivery(ctx context.Context, productName string, quantity int32, arrival string) error {
+	_, err := db.conn.Exec(ctx, "INSERT INTO deliveries (product_name, quantity, arrival) VALUES ($1, $2, $3)", productName, quantity, arrival)
 
-	err := db.QueryRow(ctx, "Insert into users (name, email) values ($1, $2) returning id", name, email).Scan(&id)
 	if err != nil {
-		return 0, err
+		return fmt.Errorf("cannot create delivery")
 	}
 
-	return id, nil
-}
-
-func ListUsers(ctx context.Context, db *pgx.Conn) ([]User, error) {
-	users := []User{}
-
-	rows, err := db.Query(ctx, "Select * from users")
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		user := User{}
-		err := rows.Scan(&user.Id, &user.Name, &user.Email)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
+	return nil
 }

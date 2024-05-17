@@ -68,7 +68,7 @@ func (db *Database) MakeOrder(ctx context.Context, productName string, quantity 
 		return fmt.Errorf("error when starting transaction %w", err)
 	}
 
-	createdAt := time.Now().Format("15:04:05 02.01.2006")
+	createdAt := time.Now().Format("02.01.2006 15:04:05")
 
 	_, err = db.conn.Exec(ctx, "INSERT INTO orders (product_name, quantity, created, arrival) VALUES ($1, $2, $3, $4)", productName, quantity, createdAt, arrivalDate)
 	if err != nil {
