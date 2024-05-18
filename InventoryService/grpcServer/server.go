@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"final/InventoryService/client"
+	"final/InventoryService/grpcServer/repository"
 	pb "final/InventoryService/proto"
-	"final/InventoryService/server/repository"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -65,7 +65,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterInventoryServiceServer(s, &server{db: db, c: c})
 
-	log.Printf("server listening at %v", lis.Addr())
+	log.Printf("grpcServer listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

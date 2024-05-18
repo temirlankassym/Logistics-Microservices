@@ -48,7 +48,6 @@ func (db *Database) GetOrders(ctx context.Context) ([]Order, error) {
 	if err != nil {
 		return []Order{}, err
 	}
-	fmt.Println("Good")
 	for rows.Next() {
 		order := Order{}
 		err := rows.Scan(&order.Id, &order.ProductName, &order.Quantity, &order.Created, &order.Arrival)
@@ -57,7 +56,6 @@ func (db *Database) GetOrders(ctx context.Context) ([]Order, error) {
 		}
 		orders = append(orders, order)
 	}
-	fmt.Println("Bad")
 
 	return orders, nil
 }

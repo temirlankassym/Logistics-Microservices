@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"final/SupplierService/grpcServer/repository"
 	pb "final/SupplierService/proto"
-	"final/SupplierService/server/repository"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -45,7 +45,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterSupplierServiceServer(s, &server{db: db})
 
-	log.Printf("server listening at %v", lis.Addr())
+	log.Printf("grpcServer listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"final/ClientService/client"
+	"final/ClientService/grpcServer/repository"
 	pb "final/ClientService/proto"
-	"final/ClientService/server/repository"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -39,7 +39,6 @@ func (s *server) GetOrders(ctx context.Context, req *emptypb.Empty) (*pb.Orders,
 		fmt.Println(err)
 		return &pb.Orders{}, nil
 	}
-	fmt.Println(orders)
 	list := []*pb.Order{}
 	for _, order := range orders {
 		list = append(list, &pb.Order{Id: order.Id, ProductName: order.ProductName, Quantity: order.Quantity, Created: order.Created, Arrival: order.Arrival})
@@ -68,7 +67,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterClientServiceServer(s, &server{db: db, c: c})
 
-	log.Printf("server listening at %v", lis.Addr())
+	log.Printf("grpcServer listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

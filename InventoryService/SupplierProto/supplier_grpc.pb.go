@@ -42,7 +42,7 @@ func (c *supplierServiceClient) CreateDelivery(ctx context.Context, in *ProductI
 	return out, nil
 }
 
-// SupplierServiceServer is the server API for SupplierService service.
+// SupplierServiceServer is the grpcServer API for SupplierService service.
 // All implementations must embed UnimplementedSupplierServiceServer
 // for forward compatibility
 type SupplierServiceServer interface {

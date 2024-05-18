@@ -42,7 +42,7 @@ func (c *inventoryServiceClient) PackOrder(ctx context.Context, in *OrderDetails
 	return out, nil
 }
 
-// InventoryServiceServer is the server API for InventoryService service.
+// InventoryServiceServer is the grpcServer API for InventoryService service.
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility
 type InventoryServiceServer interface {

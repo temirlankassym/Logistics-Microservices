@@ -53,7 +53,7 @@ func (c *clientServiceClient) GetOrders(ctx context.Context, in *empty.Empty, op
 	return out, nil
 }
 
-// ClientServiceServer is the server API for ClientService service.
+// ClientServiceServer is the grpcServer API for ClientService service.
 // All implementations must embed UnimplementedClientServiceServer
 // for forward compatibility
 type ClientServiceServer interface {
