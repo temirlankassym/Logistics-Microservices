@@ -20,10 +20,16 @@ type server struct {
 func (s *server) PackOrder(ctx context.Context, req *pb.OrderDetails) (*pb.ArrivalDate, error) {
 	arrivalDate := time.Now()
 
-	productCount, err := s.db.DecrementProduct(ctx, req.ProductName, req.Quantity)
-	if err != nil {
-		return &pb.ArrivalDate{}, err
-	}
+	c := make(chan int32)
+
+	go func() {
+		err := s.db.DecrementProduct(ctx, req.ProductName, req.Quantity, c)
+		if err != nil {
+			log.Fatalf("cannot decrement product: %v", err)
+		}
+	}()
+
+	productCount := <-c
 
 	if productCount > 0 {
 		// need to deliver new products from supplier because stock is not enough
@@ -35,7 +41,7 @@ func (s *server) PackOrder(ctx context.Context, req *pb.OrderDetails) (*pb.Arriv
 		return &pb.ArrivalDate{ArrivalDate: arrivalDate.AddDate(0, 0, 7+int(shipTime.Days)).Format("02.01.2006")}, nil
 	}
 
-	// 7 days to deliver if product present in stock
+	// 7 days to deliver if product is present in stock
 	return &pb.ArrivalDate{ArrivalDate: arrivalDate.AddDate(0, 0, 7).Format("02.01.2006")}, nil
 }
 

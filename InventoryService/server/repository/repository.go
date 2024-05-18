@@ -15,6 +15,7 @@ type Product struct {
 
 type Repository interface {
 	GetProduct(ctx context.Context, productName string) (Product, error)
+	DecrementProduct(ctx context.Context, productName string, quantity int32, c chan int32) error
 }
 
 type Database struct {
@@ -52,20 +53,23 @@ func (db *Database) GetProduct(ctx context.Context, productName string) (Product
 	return product, nil
 }
 
-func (db *Database) DecrementProduct(ctx context.Context, productName string, quantity int32) (int32, error) {
+func (db *Database) DecrementProduct(ctx context.Context, productName string, quantity int32, c chan int32) error {
 	var stock int32
 	var productCount int32
 
 	transaction, err := db.conn.Begin(ctx)
 	if err != nil {
-		return 0, fmt.Errorf("error when starting transaction %w", err)
+		return fmt.Errorf("error when starting transaction %w", err)
 	}
 
 	row := db.conn.QueryRow(ctx, "SELECT quantity FROM products WHERE product_name = $1", productName)
 	err = row.Scan(&stock)
 	if err != nil {
-		return 0, fmt.Errorf("there is no such product")
+		return fmt.Errorf("there is no such product")
 	}
+
+	// writing to channel number of missing product quantity
+	c <- quantity - stock
 
 	// if not enough products in stock give what is present and set quantity to 0
 	if stock < quantity {
@@ -78,13 +82,13 @@ func (db *Database) DecrementProduct(ctx context.Context, productName string, qu
 
 	if err != nil {
 		transaction.Rollback(ctx)
-		return 0, fmt.Errorf("cannot decrement product")
+		return fmt.Errorf("cannot decrement product")
 	}
 
 	if err = transaction.Commit(ctx); err != nil {
 		transaction.Rollback(ctx)
-		return 0, fmt.Errorf("can't commit transaction: %w", err)
+		return fmt.Errorf("can't commit transaction: %w", err)
 	}
 
-	return quantity - stock, nil
+	return nil
 }
