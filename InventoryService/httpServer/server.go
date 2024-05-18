@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	_ "final/InventoryService/docs"
 	"final/InventoryService/grpcServer/repository"
 	"fmt"
+	"github.com/swaggo/http-swagger"
 	"io"
 	"log"
 	"net/http"
@@ -24,6 +26,9 @@ func main() {
 	http.HandleFunc("/stock/show", s.ShowStock)
 	http.HandleFunc("/stock/add", s.AddProduct)
 	http.HandleFunc("/stock/delete", s.DeleteProduct)
+
+	http.HandleFunc("/swagger/", httpSwagger.WrapHandler)
+
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 

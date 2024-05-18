@@ -8,7 +8,6 @@ package proto
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -24,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientServiceClient interface {
 	MakeOrder(ctx context.Context, in *MakeOrderRequest, opts ...grpc.CallOption) (*Status, error)
-	GetOrders(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Orders, error)
 }
 
 type clientServiceClient struct {
@@ -44,21 +42,11 @@ func (c *clientServiceClient) MakeOrder(ctx context.Context, in *MakeOrderReques
 	return out, nil
 }
 
-func (c *clientServiceClient) GetOrders(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Orders, error) {
-	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/proto.ClientService/GetOrders", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// ClientServiceServer is the grpcServer API for ClientService service.
+// ClientServiceServer is the server API for ClientService service.
 // All implementations must embed UnimplementedClientServiceServer
 // for forward compatibility
 type ClientServiceServer interface {
 	MakeOrder(context.Context, *MakeOrderRequest) (*Status, error)
-	GetOrders(context.Context, *empty.Empty) (*Orders, error)
 	mustEmbedUnimplementedClientServiceServer()
 }
 
@@ -68,9 +56,6 @@ type UnimplementedClientServiceServer struct {
 
 func (UnimplementedClientServiceServer) MakeOrder(context.Context, *MakeOrderRequest) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MakeOrder not implemented")
-}
-func (UnimplementedClientServiceServer) GetOrders(context.Context, *empty.Empty) (*Orders, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrders not implemented")
 }
 func (UnimplementedClientServiceServer) mustEmbedUnimplementedClientServiceServer() {}
 
@@ -103,24 +88,6 @@ func _ClientService_MakeOrder_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ClientService_GetOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ClientServiceServer).GetOrders(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.ClientService/GetOrders",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServiceServer).GetOrders(ctx, req.(*empty.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ClientService_ServiceDesc is the grpc.ServiceDesc for ClientService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -131,10 +98,6 @@ var ClientService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MakeOrder",
 			Handler:    _ClientService_MakeOrder_Handler,
-		},
-		{
-			MethodName: "GetOrders",
-			Handler:    _ClientService_GetOrders_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

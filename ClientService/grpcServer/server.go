@@ -2,23 +2,22 @@ package main
 
 import (
 	"context"
-	"final/ClientService/client"
 	"final/ClientService/grpcServer/repository"
+	"final/ClientService/inventoryClient"
 	pb "final/ClientService/proto"
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
 )
 
-type server struct {
+type service struct {
 	pb.UnsafeClientServiceServer
 	db repository.Database
 	c  *client.Client
 }
 
-func (s *server) MakeOrder(ctx context.Context, req *pb.MakeOrderRequest) (*pb.Status, error) {
+func (s *service) MakeOrder(ctx context.Context, req *pb.MakeOrderRequest) (*pb.Status, error) {
 	arrivalDate, err := s.c.PackOrder(req.ProductName, req.Quantity)
 	if err != nil {
 		fmt.Println(err)
@@ -31,20 +30,6 @@ func (s *server) MakeOrder(ctx context.Context, req *pb.MakeOrderRequest) (*pb.S
 		return &pb.Status{Message: "can't make order"}, nil
 	}
 	return &pb.Status{Message: fmt.Sprintf("Success. Arrival Date: %s", arrivalDate.ArrivalDate)}, nil
-}
-
-func (s *server) GetOrders(ctx context.Context, req *emptypb.Empty) (*pb.Orders, error) {
-	orders, err := s.db.GetOrders(ctx)
-	if err != nil {
-		fmt.Println(err)
-		return &pb.Orders{}, nil
-	}
-	list := []*pb.Order{}
-	for _, order := range orders {
-		list = append(list, &pb.Order{Id: order.Id, ProductName: order.ProductName, Quantity: order.Quantity, Created: order.Created, Arrival: order.Arrival})
-	}
-
-	return &pb.Orders{Orders: list}, nil
 }
 
 func main() {
@@ -65,7 +50,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterClientServiceServer(s, &server{db: db, c: c})
+	pb.RegisterClientServiceServer(s, &service{db: db, c: c})
 
 	log.Printf("grpcServer listening at %v", lis.Addr())
 

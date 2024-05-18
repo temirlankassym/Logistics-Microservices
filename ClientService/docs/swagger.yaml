@@ -1,0 +1,44 @@
+definitions:
+  main.CreateOrderRequest:
+    properties:
+      name:
+        type: string
+      quantity:
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: Client Microservice
+paths:
+  /orders/create:
+    post:
+      consumes:
+      - application/json
+      description: Make an order with the given product name and quantity
+      parameters:
+      - description: Create order request
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Create a new order
+      tags:
+      - orders
+  /orders/show:
+    get:
+      description: Get all orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Show all orders
+      tags:
+      - orders
+swagger: "2.0"

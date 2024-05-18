@@ -1,0 +1,70 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Client Microservice",
+        "contact": {}
+    },
+    "paths": {
+        "/orders/create": {
+            "post": {
+                "description": "Make an order with the given product name and quantity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create a new order",
+                "parameters": [
+                    {
+                        "description": "Create order request",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/orders/show": {
+            "get": {
+                "description": "Get all orders",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Show all orders",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.CreateOrderRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

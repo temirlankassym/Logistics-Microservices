@@ -3,47 +3,44 @@ package main
 import (
 	"context"
 	"encoding/json"
-	pb "final/ClientService/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"final/ClientService/client"
+	_ "final/ClientService/docs"
+	"final/ClientService/grpcServer/repository"
+	"fmt"
+	"github.com/swaggo/http-swagger"
 	"io"
 	"log"
 	"net/http"
 )
 
-type Client struct {
-	conn pb.ClientServiceClient
-	ctx  context.Context
-}
+// @title Client Microservice
 
-func NewClient() (*Client, error) {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-	c := pb.NewClientServiceClient(conn)
-
-	return &Client{conn: c, ctx: context.Background()}, nil
-}
-
-func (c *Client) MakeOrder(productName string, quantity int32) (*pb.Status, error) {
-	return c.conn.MakeOrder(c.ctx, &pb.MakeOrderRequest{ProductName: productName, Quantity: quantity})
-}
-
-func (c *Client) GetOrders() (*pb.Orders, error) {
-	return c.conn.GetOrders(c.ctx, &emptypb.Empty{})
+type server struct {
+	db repository.Database
 }
 
 func main() {
-	http.HandleFunc("/orders/show", ShowOrders)
-	http.HandleFunc("/orders/create", MakeOrder)
+	db, err := repository.Connect(context.Background())
+	if err != nil {
+		fmt.Errorf("can't connect to database")
+	}
+	s := &server{db: db}
+
+	http.HandleFunc("/orders/show", s.ShowOrders)
+	http.HandleFunc("/orders/create", s.MakeOrder)
+	http.HandleFunc("/swagger/", httpSwagger.WrapHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func ShowOrders(writer http.ResponseWriter, request *http.Request) {
-	c, err := NewClient()
-	message, err := c.GetOrders()
+// ShowOrders godoc
+// @Summary Show all orders
+// @Description Get all orders
+// @Tags orders
+// @Produce json
+// @Success 200
+// @Router /orders/show [get]
+func (s *server) ShowOrders(writer http.ResponseWriter, request *http.Request) {
+	message, err := s.db.GetOrders(context.Background())
 	if err != nil {
 		log.Fatal("Can't get orders")
 	}
@@ -64,8 +61,17 @@ type CreateOrderRequest struct {
 	Quantity int32  `json:"quantity"`
 }
 
-func MakeOrder(writer http.ResponseWriter, request *http.Request) {
-	c, err := NewClient()
+// MakeOrder godoc
+// @Summary Create a new order
+// @Description Make an order with the given product name and quantity
+// @Tags orders
+// @Accept  json
+// @Produce json
+// @Param order body CreateOrderRequest true "Create order request"
+// @Success 200
+// @Router /orders/create [post]
+func (s *server) MakeOrder(writer http.ResponseWriter, request *http.Request) {
+	c, err := client.NewClient()
 	req := CreateOrderRequest{}
 
 	body, _ := io.ReadAll(request.Body)
