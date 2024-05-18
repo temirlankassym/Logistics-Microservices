@@ -28,7 +28,9 @@ func main() {
 
 	http.HandleFunc("/orders/show", s.ShowOrders)
 	http.HandleFunc("/orders/create", s.MakeOrder)
+
 	http.HandleFunc("/swagger/", httpSwagger.WrapHandler)
+
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
