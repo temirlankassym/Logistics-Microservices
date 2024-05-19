@@ -1,4 +1,130 @@
+definitions:
+  main.AddSupplierRequest:
+    properties:
+      company_name:
+        type: string
+      days_to_ship:
+        type: integer
+      name:
+        type: string
+    type: object
+  main.DeleteSupplierRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  repository.Delivery:
+    properties:
+      arrival:
+        type: string
+      id:
+        type: integer
+      product_name:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  repository.Supplier:
+    properties:
+      company_name:
+        type: string
+      days_to_ship:
+        type: integer
+      id:
+        type: integer
+      product_name:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+  title: Supplier Microservice API
+paths:
+  /deliveries/show:
+    get:
+      description: Get the list of all deliveries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repository.Delivery'
+            type: array
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      tags:
+      - deliveries
+  /suppliers/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new supplier to the system
+      parameters:
+      - description: Supplier to add
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/main.AddSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      tags:
+      - suppliers
+  /suppliers/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a supplier from the system
+      parameters:
+      - description: Supplier to delete
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/main.DeleteSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      tags:
+      - suppliers
+  /suppliers/show:
+    get:
+      description: Get the list of all suppliers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repository.Supplier'
+            type: array
+        "500":
+          description: Internal Server Error
+      tags:
+      - suppliers
 swagger: "2.0"

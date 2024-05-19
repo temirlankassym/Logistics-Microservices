@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
-	_ "final/SupplierService/docs"
-	"final/SupplierService/grpcServer/repository"
 	"fmt"
-	"github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"io"
 	"log"
 	"net/http"
+	_ "supplier/docs"
+	"supplier/grpcServer/repository"
 )
 
+// @title Supplier Microservice API
 type server struct {
 	db repository.Database
 }
@@ -23,6 +24,7 @@ func main() {
 	}
 
 	s := &server{db: db}
+
 	http.HandleFunc("/suppliers/show", s.ShowSuppliers)
 	http.HandleFunc("/suppliers/add", s.AddSupplier)
 	http.HandleFunc("/suppliers/delete", s.DeleteSupplier)
@@ -33,6 +35,13 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8082", nil))
 }
 
+// ShowSuppliers @Summary Show Suppliers
+// @Description Get the list of all suppliers
+// @Tags suppliers
+// @Produce json
+// @Success 200 {array} repository.Supplier
+// @Failure 500
+// @Router /suppliers/show [get]
 func (s *server) ShowSuppliers(writer http.ResponseWriter, request *http.Request) {
 	stock, err := s.db.ShowSuppliers(context.Background())
 
@@ -47,12 +56,23 @@ func (s *server) ShowSuppliers(writer http.ResponseWriter, request *http.Request
 	}
 }
 
+// AddSupplierRequest represents the request body for adding a supplier
 type AddSupplierRequest struct {
 	ProductName string `json:"name"`
 	CompanyName string `json:"company_name"`
 	DaysToShip  int32  `json:"days_to_ship"`
 }
 
+// AddSupplier @Summary Add Supplier
+// @Description Add a new supplier to the system
+// @Tags suppliers
+// @Accept json
+// @Produce json
+// @Param supplier body AddSupplierRequest true "Supplier to add"
+// @Success 200 {object} map[string]string
+// @Failure 400
+// @Failure 500
+// @Router /suppliers/add [post]
 func (s *server) AddSupplier(writer http.ResponseWriter, request *http.Request) {
 	req := AddSupplierRequest{}
 
@@ -78,10 +98,21 @@ func (s *server) AddSupplier(writer http.ResponseWriter, request *http.Request) 
 	}
 }
 
+// DeleteSupplierRequest represents the request body for deleting a supplier
 type DeleteSupplierRequest struct {
 	ProductName string `json:"name"`
 }
 
+// DeleteSupplier @Summary Delete Supplier
+// @Description Delete a supplier from the system
+// @Tags suppliers
+// @Accept json
+// @Produce json
+// @Param supplier body DeleteSupplierRequest true "Supplier to delete"
+// @Success 200 {object} map[string]string
+// @Failure 400
+// @Failure 500
+// @Router /suppliers/delete [delete]
 func (s *server) DeleteSupplier(writer http.ResponseWriter, request *http.Request) {
 	req := DeleteSupplierRequest{}
 
@@ -107,6 +138,14 @@ func (s *server) DeleteSupplier(writer http.ResponseWriter, request *http.Reques
 	}
 }
 
+// ShowDeliveries @Summary Show Deliveries
+// @Description Get the list of all deliveries
+// @Tags deliveries
+// @Produce json
+// @Success 200 {array} repository.Delivery
+// @Failure 400
+// @Failure 500
+// @Router /deliveries/show [get]
 func (s *server) ShowDeliveries(writer http.ResponseWriter, request *http.Request) {
 	deliveries, err := s.db.ShowDeliveries(context.Background())
 

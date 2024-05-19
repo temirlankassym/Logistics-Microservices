@@ -28,8 +28,8 @@ func Connect(ctx context.Context) (Database, error) {
 }
 
 func getConfig() string {
-	return fmt.Sprintf("postgresql://%s:%s@localhost:%s/%s?sslmode=disable",
-		"postgres", "mysecretpassword", "5432", "supplier")
+	return fmt.Sprintf("postgresql://%s:%s@35.242.243.142:%s/%s?sslmode=disable",
+		"postgres", "mydatabaseSdugram789", "5432", "supplier")
 }
 
 func (db *Database) GetDeliveryTime(ctx context.Context, productName string) (int32, error) {

@@ -38,7 +38,7 @@ func Connect(ctx context.Context) (Database, error) {
 
 func getConfig() string {
 	return fmt.Sprintf("postgresql://%s:%s@35.242.243.142:%s/%s?sslmode=disable",
-		"postgres", "password", "port", "dbname")
+		"postgres", "mydatabaseSdugram789", "5432", "client")
 }
 
 func (db *Database) GetOrders(ctx context.Context) ([]Order, error) {

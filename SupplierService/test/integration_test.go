@@ -52,14 +52,14 @@ func TestAddDeleteSupplier(t *testing.T) {
 
 	// Add a new supplier
 	var jsonStr = []byte(`{"name":"test","company_name":"test company","days_to_ship":1}`)
-	_, err := http.Post("http://localhost:8082/suppliers/add", "application/json", bytes.NewBuffer(jsonStr))
+	_, err := http.Post("http://104.248.21.144:8082/suppliers/add", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
 
 	// Delete the supplier
 	jsonStr = []byte(`{"name":"test"}`)
-	_, err = http.Post("http://localhost:8082/suppliers/delete", "application/json", bytes.NewBuffer(jsonStr))
+	_, err = http.Post("http://104.248.21.144:8082/suppliers/delete", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
@@ -74,7 +74,7 @@ func TestAddDeleteSupplier(t *testing.T) {
 }
 
 func TestShowDeliveries(t *testing.T) {
-	resp, err := http.Get("http://localhost:8082/deliveries/show")
+	resp, err := http.Get("http://104.248.21.144:8082/deliveries/show")
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
@@ -86,7 +86,7 @@ func TestShowDeliveries(t *testing.T) {
 }
 
 func getSuppliers() []Supplier {
-	resp, err := http.Get("http://localhost:8082/suppliers/show")
+	resp, err := http.Get("http://104.248.21.144:8082/suppliers/show")
 	if err != nil {
 		return nil
 	}

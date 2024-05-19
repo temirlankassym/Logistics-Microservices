@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"final/SupplierService/grpcServer/repository"
-	pb "final/SupplierService/proto"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"supplier/grpcServer/repository"
+	pb "supplier/proto"
 	"time"
 )
 
