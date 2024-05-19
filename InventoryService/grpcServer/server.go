@@ -8,6 +8,7 @@ import (
 	pb "inventory/proto"
 	"log"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -20,9 +21,13 @@ type server struct {
 func (s *server) PackOrder(ctx context.Context, req *pb.OrderDetails) (*pb.ArrivalDate, error) {
 	arrivalDate := time.Now()
 
+	var wg sync.WaitGroup
+	wg.Add(1)
+
 	c := make(chan int32)
 
 	go func() {
+		defer wg.Done()
 		err := s.db.DecrementProduct(ctx, req.ProductName, req.Quantity, c)
 		if err != nil {
 			log.Fatalf("cannot decrement product: %v", err)
@@ -38,9 +43,11 @@ func (s *server) PackOrder(ctx context.Context, req *pb.OrderDetails) (*pb.Arriv
 			return &pb.ArrivalDate{}, err
 		}
 
+		wg.Wait()
 		return &pb.ArrivalDate{ArrivalDate: arrivalDate.AddDate(0, 0, 7+int(shipTime.Days)).Format("02.01.2006")}, nil
 	}
 
+	wg.Wait()
 	// 7 days to deliver if product is present in stock
 	return &pb.ArrivalDate{ArrivalDate: arrivalDate.AddDate(0, 0, 7).Format("02.01.2006")}, nil
 }

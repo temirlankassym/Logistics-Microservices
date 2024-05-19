@@ -13,7 +13,7 @@ type Client struct {
 }
 
 func NewClient() (*Client, error) {
-	conn, err := grpc.Dial("165.227.169.35:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("206.189.48.115:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
