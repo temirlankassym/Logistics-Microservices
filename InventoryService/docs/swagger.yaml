@@ -1,4 +1,123 @@
+definitions:
+  main.CreateProductRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  main.DeleteProductRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  repository.Product:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      productName:
+        type: string
+      quantity:
+        type: integer
+    type: object
 info:
   contact: {}
-paths: {}
+  description: API for managing inventory, including adding, deleting, and viewing
+    stock.
+  title: Inventory Microservice API
+paths:
+  /stock/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new product to the stock
+      parameters:
+      - description: Product to add
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - stock
+  /stock/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product from the stock
+      parameters:
+      - description: Product to delete
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/main.DeleteProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - stock
+  /stock/show:
+    get:
+      description: Get the list of all products in stock
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repository.Product'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - stock
 swagger: "2.0"

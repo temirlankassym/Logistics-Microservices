@@ -52,14 +52,14 @@ func TestAddDeleteProduct(t *testing.T) {
 
 	// Add a new product
 	var jsonStr = []byte(`{"name":"test","quantity":1,"description":"test"}`)
-	_, err := http.Post("http://localhost:8081/stock/add", "application/json", bytes.NewBuffer(jsonStr))
+	_, err := http.Post("http://165.227.169.35:8081/stock/add", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
 
 	// Delete the product
 	jsonStr = []byte(`{"name":"test"}`)
-	_, err = http.Post("http://localhost:8081/stock/delete", "application/json", bytes.NewBuffer(jsonStr))
+	_, err = http.Post("http://165.227.169.35:8081/stock/delete", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
@@ -74,7 +74,7 @@ func TestAddDeleteProduct(t *testing.T) {
 }
 
 func getProducts() []Product {
-	resp, err := http.Get("http://localhost:8081/stock/show")
+	resp, err := http.Get("http://165.227.169.35:8081/stock/show")
 	if err != nil {
 		return nil
 	}

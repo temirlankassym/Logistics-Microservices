@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"encoding/json"
-	_ "final/InventoryService/docs"
-	"final/InventoryService/grpcServer/repository"
 	"fmt"
-	"github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "inventory/docs"
+	"inventory/grpcServer/repository"
 	"io"
 	"log"
 	"net/http"
 )
+
+// @title Inventory Microservice API
+// @description API for managing inventory, including adding, deleting, and viewing stock.
 
 type server struct {
 	db repository.Database
@@ -32,6 +35,13 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
+// ShowStock @Summary Show Stock
+// @Description Get the list of all products in stock
+// @Tags stock
+// @Produce json
+// @Success 200 {array} repository.Product
+// @Failure 500 {object} map[string]string
+// @Router /stock/show [get]
 func (s *server) ShowStock(writer http.ResponseWriter, request *http.Request) {
 	stock, err := s.db.ShowStock(context.Background())
 
@@ -46,12 +56,23 @@ func (s *server) ShowStock(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// CreateProductRequest represents the request body for adding a product
 type CreateProductRequest struct {
 	Name        string `json:"name"`
 	Quantity    int32  `json:"quantity"`
 	Description string `json:"description"`
 }
 
+// AddProduct @Summary Add Product
+// @Description Add a new product to the stock
+// @Tags stock
+// @Accept json
+// @Produce json
+// @Param product body CreateProductRequest true "Product to add"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /stock/add [post]
 func (s *server) AddProduct(writer http.ResponseWriter, request *http.Request) {
 	req := CreateProductRequest{}
 
@@ -77,10 +98,21 @@ func (s *server) AddProduct(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// DeleteProductRequest represents the request body for deleting a product
 type DeleteProductRequest struct {
 	Name string `json:"name"`
 }
 
+// DeleteProduct @Summary Delete Product
+// @Description Delete a product from the stock
+// @Tags stock
+// @Accept json
+// @Produce json
+// @Param product body DeleteProductRequest true "Product to delete"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /stock/delete [delete]
 func (s *server) DeleteProduct(writer http.ResponseWriter, request *http.Request) {
 	req := DeleteProductRequest{}
 

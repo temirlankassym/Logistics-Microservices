@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"final/InventoryService/client"
-	"final/InventoryService/grpcServer/repository"
-	pb "final/InventoryService/proto"
 	"google.golang.org/grpc"
+	"inventory/client"
+	"inventory/grpcServer/repository"
+	pb "inventory/proto"
 	"log"
 	"net"
 	"time"
