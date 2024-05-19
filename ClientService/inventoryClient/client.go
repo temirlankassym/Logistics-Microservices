@@ -1,8 +1,8 @@
 package client
 
 import (
+	pb "client/inventoryProto"
 	"context"
-	pb "final/ClientService/inventoryProto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

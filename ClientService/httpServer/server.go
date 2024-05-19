@@ -1,11 +1,11 @@
 package main
 
 import (
+	"client/client"
+	_ "client/docs"
+	"client/grpcServer/repository"
 	"context"
 	"encoding/json"
-	"final/ClientService/client"
-	_ "final/ClientService/docs"
-	"final/ClientService/grpcServer/repository"
 	"fmt"
 	"github.com/swaggo/http-swagger"
 	"io"
