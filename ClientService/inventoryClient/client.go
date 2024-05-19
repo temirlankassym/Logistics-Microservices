@@ -19,8 +19,6 @@ func NewClient() (*Client, error) {
 	}
 	c := pb.NewInventoryServiceClient(conn)
 
-	//ctx, _ := context.WithTimeout(context.Background(), time.Second)
-
 	return &Client{conn: c, ctx: context.Background()}, nil
 }
 

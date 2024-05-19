@@ -6,7 +6,7 @@ import (
 )
 
 func TestShowOrders(t *testing.T) {
-	resp, err := http.Get("http://localhost:8080/orders/show")
+	resp, err := http.Get("http://167.172.108.51:8080/orders/show")
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}

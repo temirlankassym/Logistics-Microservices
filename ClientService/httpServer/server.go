@@ -13,7 +13,7 @@ import (
 	"net/http"
 )
 
-// @title Client Microservice
+// @title Client Microservice API
 
 type server struct {
 	db repository.Database
@@ -39,7 +39,8 @@ func main() {
 // @Description Get all orders
 // @Tags orders
 // @Produce json
-// @Success 200
+// @Success 200 {array} repository.Order
+// @Failure 500
 // @Router /orders/show [get]
 func (s *server) ShowOrders(writer http.ResponseWriter, request *http.Request) {
 	message, err := s.db.GetOrders(context.Background())
@@ -58,6 +59,7 @@ func (s *server) ShowOrders(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// CreateOrderRequest represents the request body for creating an order
 type CreateOrderRequest struct {
 	Name     string `json:"name"`
 	Quantity int32  `json:"quantity"`
@@ -67,10 +69,12 @@ type CreateOrderRequest struct {
 // @Summary Create a new order
 // @Description Make an order with the given product name and quantity
 // @Tags orders
-// @Accept  json
+// @Accept json
 // @Produce json
 // @Param order body CreateOrderRequest true "Create order request"
-// @Success 200
+// @Success 200 {object} map[string]string
+// @Failure 400
+// @Failure 500
 // @Router /orders/create [post]
 func (s *server) MakeOrder(writer http.ResponseWriter, request *http.Request) {
 	c, err := client.NewClient()
