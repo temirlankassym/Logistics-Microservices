@@ -1,8 +1,8 @@
 package main
 
 import (
+	"client/client"
 	"client/grpcServer/repository"
-	"client/inventoryClient"
 	pb "client/proto"
 	"context"
 	"fmt"

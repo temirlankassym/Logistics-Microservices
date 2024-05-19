@@ -23,12 +23,6 @@ func TestShowStock(t *testing.T) {
 
 	expected := []Product{
 		{
-			Id:          1,
-			Name:        "iPhone",
-			Quantity:    0,
-			Description: "Smartphone designed by Apple Inc.",
-		},
-		{
 			Id:          2,
 			Name:        "PlayStation",
 			Quantity:    0,
@@ -39,6 +33,12 @@ func TestShowStock(t *testing.T) {
 			Name:        "Coca-Cola",
 			Quantity:    0,
 			Description: "Carbonated soft drink produced by The Coca-Cola Company.",
+		},
+		{
+			Id:          1,
+			Name:        "iPhone",
+			Quantity:    0,
+			Description: "Smartphone designed by Apple Inc.",
 		},
 	}
 
@@ -52,14 +52,14 @@ func TestAddDeleteProduct(t *testing.T) {
 
 	// Add a new product
 	var jsonStr = []byte(`{"name":"test","quantity":1,"description":"test"}`)
-	_, err := http.Post("http://165.227.169.35:8081/stock/add", "application/json", bytes.NewBuffer(jsonStr))
+	_, err := http.Post("http://206.189.48.115:8081/stock/add", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
 
 	// Delete the product
 	jsonStr = []byte(`{"name":"test"}`)
-	_, err = http.Post("http://165.227.169.35:8081/stock/delete", "application/json", bytes.NewBuffer(jsonStr))
+	_, err = http.Post("http://206.189.48.115:8081/stock/delete", "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatalf("The HTTP request failed with error %s\n", err)
 	}
@@ -74,7 +74,7 @@ func TestAddDeleteProduct(t *testing.T) {
 }
 
 func getProducts() []Product {
-	resp, err := http.Get("http://165.227.169.35:8081/stock/show")
+	resp, err := http.Get("http://206.189.48.115:8081/stock/show")
 	if err != nil {
 		return nil
 	}
