@@ -1,8 +1,8 @@
 package client
 
 import (
-	pb "client/proto"
 	"context"
+	pb "gateway/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -13,7 +13,7 @@ type Client struct {
 }
 
 func NewClient() (*Client, error) {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("138.197.180.252:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

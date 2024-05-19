@@ -1,0 +1,17 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "final/proto";
+
+service ClientService{
+  rpc MakeOrder (MakeOrderRequest) returns (Status) {}
+}
+
+message MakeOrderRequest {
+  string ProductName = 1;
+  int32 Quantity = 2;
+}
+
+message Status {
+  string message = 1;
+}
